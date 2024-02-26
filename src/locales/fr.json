@@ -1,0 +1,17 @@
+{
+    "header.title": "Test Smobilpay",
+    "header.address": "Friedrichebert str,61,04347,Leipzig",
+    "paymentMethod.mtn": "MTN Mobile Money",
+    "paymentMethod.orange": "Orange Money",
+    "paymentMethod.expressUnion": "Express Union Payment",
+    "body.paymentAmount": "Montant*",
+    "body.reference": "Référence",
+    "body.selectPaymentMethod": "Sélectionnez le mode de paiement",
+    "body.enterNumber": "Entrer le numéro",
+    "steps.step1": "Vérifier le Paiement",
+    "steps.step2": "Confirmer le Paiement",
+    "payment.details": "Détails de Paiement",
+    "header.language": "Langue",
+    "input.hyperText": "Ce champs est important"
+  }
+  
