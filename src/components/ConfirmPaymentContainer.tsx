@@ -1,13 +1,11 @@
 import TextField from "@mui/material/TextField"
 import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { usePaymentFormContext } from "../context/PaymentForm";
+import { Pattern } from "@mui/icons-material";
 
 
-interface ConfirmPaymentContainerProps {
-    paymentAmount: string;
-    reference: string;
-}
 
 interface FormData {
     surname: string;
@@ -19,21 +17,25 @@ interface FormData {
 }
 
 
-const ConfirmPaymentContainer: React.FC<ConfirmPaymentContainerProps> = ({
-    reference
-}) => {
+const ConfirmPaymentContainer: React.FC = () => {
+    const { paymentFormData, setPaymentFormData } = usePaymentFormContext();
 
-    const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
 
-    const onSubmit = (data: FormData) => {
-        console.log(data);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPaymentFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+
+        }));
+        console.log("hiiii", paymentFormData.surname);
+
     };
 
-    const handleValidSurname = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const surname = event.target.value;
-
-        const isString = /^[a-zA-Z]+$/.test(surname.trim());
-
+    const onSubmit: SubmitHandler<FormData> = (data) => {
+        console.log("hellllloooo", data);
 
     };
 
@@ -41,57 +43,104 @@ const ConfirmPaymentContainer: React.FC<ConfirmPaymentContainerProps> = ({
 
     return (
 
-        <form onSubmit={handleSubmit(onSubmit)}>
 
-            <div style={{ marginTop: '30px' }}>
+        <div style={{ marginTop: '30px' }}>
 
-                <div style={{ fontFamily: 'fangsong' }}>
-                    <h2>We want to know more about you. </h2>
-                </div>
-                <div style={{ padding: ' 12px 0  ' }}>
-                    <div style={{ marginBottom: '12px' }}>
-                        <label > Surname*</label>
-                    </div>
-                    <div  >
-                        <TextField
-                            onChange={handleValidSurname}
-                            size="small" fullWidth />
-                    </div>
-                </div>
+            <div style={{ fontFamily: 'fangsong' }}>
+                <h2>We want to know more about you. </h2>
+            </div>
+            <div style={{ padding: ' 12px 0  ' }}>
                 <div style={{ marginBottom: '12px' }}>
-                    <label>Name*</label>
+                    <label > Surname*</label>
                 </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <TextField size="small" fullWidth value={reference} />
-                </div>
+                <div  >
+                    <TextField
+                        size="small"
+                        fullWidth
+                        {...register("surname", {
+                            required: "This field is required",
+                            pattern: {
+                                value: /^[A-Za-z]+$/,
+                                message: "Surname must contain only letters"
+                            }
+                        })}
+                    //value={paymentFormData.surname}
+                    />
+                    <p style={{ color: "red", marginBottom: "-1px", fontSize: "smaller", marginTop: "-1px" }}>{errors.surname?.message}</p>
 
-                <div style={{ marginBottom: '12px' }} >
-                    <label>Email</label>
+
+
                 </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <TextField size="small" fullWidth />
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <label>Phone Number *</label>
-                </div>
-                <div style={{ marginBottom: '12px' }} >
-                    <TextField size="small" fullWidth />
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <label>Company Name</label>
-                </div>
-                <div style={{ marginBottom: '12px' }} >
-                    <TextField size="small" fullWidth />
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <label>Company Address</label>
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                    <TextField size="small" fullWidth />
-                </div>
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <label>Name*</label>
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <TextField
+                    size="small"
+                    fullWidth
+                    {...register("name", {
+                        minLength: {
+                            value: 5,
+                            message: "Please enter more than 2 characters"
+                        },
+                        required: "This field is required",
+                        pattern: {
+                            value: /^[A-Za-z]+$/,
+                            message: "Name must contain only letters"
+                        }
+                    })}
+
+                />
+                <p style={{ color: "red", marginBottom: "-1px", fontSize: "smaller", marginTop: "-1px" }}>{errors.name?.message}</p>
 
             </div>
-        </form>
+
+            <div style={{ marginBottom: '12px' }} >
+                <label>Email</label>
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <TextField
+                    size="small" fullWidth
+                    {...register("email", {
+                        validate: {
+                            maxLength: (v) =>
+                                v.length <= 50 || "The email should have at most 50 characters",
+                            matchPattern: (v) =>
+                                /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+                                "Email address must be a valid address",
+                        }
+                    })}
+                />
+                <p style={{ color: "red", marginBottom: "-1px", fontSize: "smaller", marginTop: "-1px" }}>{errors.email?.message}</p>
+
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <label>Phone Number *</label>
+            </div>
+            <div style={{ marginBottom: '12px' }} >
+                <TextField
+                    onChange={handleChange}
+                    size="small"
+                    fullWidth />
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <label>Company Name</label>
+            </div>
+            <div style={{ marginBottom: '12px' }} >
+                <TextField
+                    onChange={handleChange}
+                    size="small" fullWidth />
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <label>Company Address</label>
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+                <TextField
+                    onChange={handleChange} size="small" fullWidth />
+            </div>
+
+        </div>
     )
 
 }

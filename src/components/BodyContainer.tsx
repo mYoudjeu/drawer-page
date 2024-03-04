@@ -90,15 +90,16 @@ const BodyContainer: React.FC<BodyContainerProps> = ({
         <form>
             <div style={{ marginTop: '30px' }}>
                 <div style={{ fontFamily: 'fangsong' }}>
-                    <h2>{t('payment.details')} </h2>
+                    <h2 >{t('payment.details')} </h2>
                 </div>
                 <div className="form-group">
-                    <label style={{ marginBottom: '10px' }}>{t('body.paymentAmount')}</label>
+                    <label style={amountError ? { color: "red", marginBottom: '10px' } : { color: "black", marginBottom: '10px' }}>{t('body.paymentAmount')}</label>
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                     <TextField
                         size="small"
                         fullWidth
+                        error={amountError ? true : false}
                         value={paymentAmount}
                         onChange={handlePaymentAmountChange}
                     />
@@ -134,7 +135,7 @@ const BodyContainer: React.FC<BodyContainerProps> = ({
                 </div>
                 {paymentMethod && (<div className="form-group" style={{ marginTop: '25px', display: 'block' }}>
                     <div style={{ marginBottom: '10px' }}>
-                        <label>{t('body.enterNumber')}</label>
+                        <label style={!isPhoneNumberValid ? { color: "red" } : { color: "black" }}>{t('body.enterNumber')}</label>
                     </div>
                     <div>
                         <TextField
@@ -147,7 +148,7 @@ const BodyContainer: React.FC<BodyContainerProps> = ({
 
 
             </div>
-        </form>
+        </form >
     )
 
 }
