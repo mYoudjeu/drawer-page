@@ -6,13 +6,10 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import BodyContainer from "./BodyContainer";
-import ConfirmPaymentContainer from "./ConfirmPaymentContainer";
 import PaymentModal from "./PaymentModal";
 import { usePaymentFormContext } from "../context/PaymentForm";
 import {
     useForm,
-    useFormState,
-    FormState,
     SubmitHandler,
 } from "react-hook-form";
 import { PaymentFormData } from "../context/PaymentForm";

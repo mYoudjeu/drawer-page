@@ -46,7 +46,7 @@ const PaymentModal: React.FC<PaymentAmount> = ({
                             <label style={{ color: 'red' }}>Frais</label>
                         </div>
                         <div>
-                            <label style={{ color: 'red' }}>{parseFloat(paymentAmount) * 0.1} FCFA</label>
+                            <label style={{ color: 'red' }}>{parseFloat(paymentAmount) * 0.01} FCFA</label>
                         </div>
                     </div>
 

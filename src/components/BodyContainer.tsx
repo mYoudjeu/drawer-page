@@ -1,85 +1,45 @@
 import TextField from "@mui/material/TextField"
 import { Button } from "@mui/material";
-import TextFieldBox from "./TextFieldBox"
-import TextFieldBox2 from "./TextFieldBox2"
 import { useTranslation } from "react-i18next";
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 interface BodyContainerProps {
-    paymentAmount: string;
-    reference: string;
+    setIsPaymentInitiated: (isInitiated: boolean) => void;
     onPaymentAmountChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onReferenceChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    onPhoneNumberValidation: (isValid: boolean) => void;
+
+}
+
+interface Inputs {
+    amount: string
+    reference: string
+    phoneNumber: string
 }
 
 const BodyContainer: React.FC<BodyContainerProps> = ({
-    paymentAmount,
-    reference,
+    setIsPaymentInitiated,
     onPaymentAmountChange,
-    onReferenceChange,
-    onPhoneNumberValidation
 }) => {
 
     const { t } = useTranslation();
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const [isPhoneNumberValid, setIsPhoneNumberValid] = useState<boolean>(false);
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<boolean>(false);
-    const [amountError, setAmountError] = useState("");
-
-    useEffect(() => {
-        // Call onPhoneNumberValidation whenever isPhoneNumberValid changes
-        onPhoneNumberValidation(isPhoneNumberValid);
-    }, [isPhoneNumberValid, onPhoneNumberValidation]);
+    const { register, handleSubmit, formState: { errors, isDirty, isValid, dirtyFields }, } = useForm<Inputs>({ mode: "onChange" })
 
 
     const handlePaymentMethodClick = (selectedMethod: string) => {
         setPaymentMethod(selectedMethod);
-        setErrorMessage("");
-        setPhoneNumber("");
-        setIsPhoneNumberValid(false);
-        setSelectedPaymentMethod(true)
     };
 
+    const onSubmit: SubmitHandler<Inputs> = (data) => {
+        setIsPaymentInitiated(true)
+        console.log("hi", data);
 
-    const handleChangePhoneNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const number = event.target.value;
-        setPhoneNumber(number);
-
-        if (paymentMethod === t("paymentMethod.mtn")) {
-            // Validation for MTN Mobile Money
-            const mtnRegex = /^(6(50|51|52|53|54|7(0|1|2|3|4|8(0|1|2|3)|[67])))\d{6}$/;
-            setIsPhoneNumberValid(mtnRegex.test(number));
-            if (!mtnRegex.test(number)) {
-                setErrorMessage("Invalid MTN Mobile Money number format");
-            } else {
-                setErrorMessage("");
-            }
-        } else if (paymentMethod === t("paymentMethod.orange")) {
-            // Validation for Orange Money
-            const orangeRegex = /^(65(5|6|7|8|90|91|92|93|94|95|9|69))\d{6}$/;
-            setIsPhoneNumberValid(orangeRegex.test(number)); // Set validity based on regex test
-            if (!orangeRegex.test(number)) {
-                setErrorMessage("Invalid Orange Money number format");
-            } else {
-                setErrorMessage("");
-            }
-        }
-    };
+    }
 
     const handlePaymentAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const amount = event.target.value;
+        onPaymentAmountChange(event);
+        console.log("dirty fields", dirtyFields);
 
-        const isNumeric = /^[0-9]*$/.test(amount);
-        if (isNumeric || amount === "") { // Accept empty string as well
-            setAmountError("");
-            onPaymentAmountChange(event);
-        } else {
-            setAmountError("Please enter only numbers");
-        }
     };
 
 
@@ -87,38 +47,62 @@ const BodyContainer: React.FC<BodyContainerProps> = ({
 
     return (
 
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)} >
+            <div className="step-wrapper">
+                <div className="step-item">
+                    <div className="step-circle">1</div>
+                    <div> {t('steps.step1')}</div>
+                </div>
+                <div className="step-item">
+                    <div className="step-circle" style={{ backgroundColor: '#8d8d8d' }}>2</div>
+                    <div style={{ color: '#8d8d8d' }}>{t('steps.step2')}</div>
+                </div>
+            </div>
             <div style={{ marginTop: '30px' }}>
                 <div style={{ fontFamily: 'fangsong' }}>
-                    <h2 >{t('payment.details')} </h2>
+                    <h2>{t('payment.details')} </h2>
                 </div>
-                <div className="form-group">
-                    <label style={amountError ? { color: "red", marginBottom: '10px' } : { color: "black", marginBottom: '10px' }}>{t('body.paymentAmount')}</label>
+                <div className="form-group" style={{ marginBottom: "12px" }}>
+                    <label style={errors.amount?.message ? { color: "red" } : { color: "black" }}>{t('body.paymentAmount')}</label>
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ margin: '-7px', marginTop: "0.5px", marginBottom: '10px' }}>
                     <TextField
                         size="small"
                         fullWidth
-                        error={amountError ? true : false}
-                        value={paymentAmount}
+                        error={errors.amount?.message ? true : false}
+                        {...register("amount", {
+                            required: "This field is required",
+                            pattern: {
+                                value: /^[0-9]+$/,
+                                message: "Amount must contain only numbers",
+                            },
+                        })}
                         onChange={handlePaymentAmountChange}
                     />
-                    {amountError && <div style={{ color: "red" }}>{amountError}</div>}
+                    <p
+                        style={{
+                            color: "red",
+                            marginBottom: "-1px",
+                            fontSize: "smaller",
+                            marginTop: "-1px",
+                        }}
+                    >
+                        {errors.amount?.message}
+                    </p>
                 </div>
-                <div className="form-group">
-                    <label style={{ marginBottom: '10px' }}>{t('body.reference')}</label>
+                <div className="form-group" style={{ marginBottom: "12px" }}>
+                    <label>{t('body.reference')}</label>
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ margin: '-7px', marginTop: "0.5px" }}>
                     <TextField
-                        size="small"
                         fullWidth
-                        value={reference}
-                        onChange={onReferenceChange}
-                    />
+                        {...register("reference")}
+                        size="small" />
                 </div>
                 <div style={{ fontFamily: 'fangsong' }}>
                     <h2>{t('body.selectPaymentMethod')} </h2>
                 </div>
+
                 <div className="payment-Method-wrapper" >
                     <div className="payment-Method" onClick={() => handlePaymentMethodClick(t('paymentMethod.mtn'))}>
                         <img src="/media/mtn.svg" className={paymentMethod === t("paymentMethod.mtn") ? "selected" : ""} />
@@ -133,22 +117,70 @@ const BodyContainer: React.FC<BodyContainerProps> = ({
                         <div className="font" style={{ textAlign: 'center' }}>{t('paymentMethod.expressUnion')}</div>
                     </div>
                 </div>
-                {paymentMethod && (<div className="form-group" style={{ marginTop: '25px', display: 'block' }}>
+
+                {paymentMethod && (<div className="form-group" style={{ marginTop: '50px', display: 'block' }}>
                     <div style={{ marginBottom: '10px' }}>
-                        <label style={!isPhoneNumberValid ? { color: "red" } : { color: "black" }}>{t('body.enterNumber')}</label>
+                        <label>{t('body.enterNumber')}</label>
                     </div>
                     <div>
                         <TextField
-                            error={!isPhoneNumberValid}
-                            fullWidth size="small" value={phoneNumber} onChange={handleChangePhoneNumber} />
-                        {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+                            error={errors.phoneNumber?.message ? true : false}
+                            fullWidth size="small"
+                            {...paymentMethod === t("paymentMethod.mtn") &&
+                            {
+                                ...register("phoneNumber", {
+                                    required: "This field is required",
+                                    pattern: {
+                                        value: /^(6(50|51|52|53|54|7(0|1|2|3|4|8(0|1|2|3)|[67])))\d{6}$/,
+                                        message: "Invalid Mobile Money number format",
+                                    },
+                                })
+                            }}
+                            {...paymentMethod === t("paymentMethod.orange") &&
+                            {
+                                ...register("phoneNumber", {
+                                    required: "This field is required",
+                                    pattern: {
+                                        value: /^(6(50|51|52|53|54|7(0|1|2|3|4|8(0|1|2|3)|[67])))\d{6}$/,
+                                        message: "Invalid Orange Money number format",
+                                    },
+                                })
+                            }}
+                            {...paymentMethod === null ?
+
+                                register("phoneNumber", {
+                                    required: "This field is required",
+
+                                }) : null
+                            }
+                        />
+
+                        <p
+                            style={{
+                                color: "red",
+                                marginBottom: "-1px",
+                                fontSize: "smaller",
+                                marginTop: "-1px",
+                            }}
+                        >
+                            {errors.phoneNumber?.message}
+                        </p>
                     </div>
                 </div>
                 )}
 
-
+                <div style={{ marginTop: '12px' }}>
+                    <Button
+                        fullWidth
+                        size="small"
+                        variant="contained"
+                        type="submit"
+                    >
+                        Initiate Payment
+                    </Button>
+                </div>
             </div>
-        </form >
+        </form>
     )
 
 }
